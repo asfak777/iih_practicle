@@ -31,22 +31,3 @@ Route::post('/tables-columns/store', 'Api\TableController@storeTableColumns');
 Route::get('/tables-columns/edit', 'Api\TableController@editTableColumns');
 Route::post('/tables-columns/update', 'Api\TableController@updateTableColumns');
 Route::post('/tables-columns/delete', 'Api\TableController@deleteTableColumns');
-
-
-
-Route::group(['middleware' => 'auth:api'], function(){
-	//users route
-	Route::post('details', 'Api\UserController@details');
-
-	//category route
-	Route::post('categories', 'Api\CategoryController@all');
-
-	//product route
-	Route::post('products', 'Api\ProductController@all');
-	Route::get('products/{id}', 'Api\ProductController@get_detail');
-	Route::post('search-products', 'Api\ProductController@search_product');
-
-	//table
-	// Route::get('tables', 'Api\ProductController@all');
-
-});

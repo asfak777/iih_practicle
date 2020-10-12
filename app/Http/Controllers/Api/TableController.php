@@ -26,6 +26,7 @@ class TableController extends Controller
         ["id"=>3, "type"=>"Date", "laravel_field"=>"date", "compare_field"=>"date"],
     ];
 
+    //create table 
     public function createTable(Request $request){
         $return_data['error'] = 1;
         $return_data['msg'] = "Something went wrong please try again later.";
@@ -36,7 +37,6 @@ class TableController extends Controller
             if(!Schema::hasTable($table_name)) {
                 Schema::create($table_name, function (Blueprint $table) use ($table_name) {
                     $table->increments('id');
-                    // $table->timestamps();
                 });
 
                 $return_data['error'] = 0;
@@ -51,6 +51,7 @@ class TableController extends Controller
         return $return_data;
     }
 
+    //update table 
     public function updateTable(Request $request){
         $return_data['error'] = 1;
         $return_data['msg'] = "Something went wrong please try again later.";
@@ -96,8 +97,7 @@ class TableController extends Controller
         return $return_data;
     }
 
-    /*************************/
-
+    //edit table columns
     public function editTableColumns(Request $request) {
         $return_data['error'] = 1;
         $return_data['msg'] = "Something went wrong please try again later.";
@@ -112,6 +112,7 @@ class TableController extends Controller
         return $return_data;
     }
 
+    //get table columns
     public function getTableColumns($table_name){
         $return_data['error'] = 1;
         $return_data['msg'] = "Something went wrong please try again later.";
@@ -119,8 +120,6 @@ class TableController extends Controller
 
         if(!empty($table_name)){
             $fields = DB::select('describe '.$table_name);
-
-            // echo "<pre>";print_r($fields);die;
 
             if(!empty($fields) && !empty($fields)){
 
@@ -131,42 +130,40 @@ class TableController extends Controller
                 $para['data'] = $fields;
                 $para['table_name'] = $table_name;
                 $para['custom_field'] = $this->custom_field;
-                $return_data['html'] = View('customer.edit_columns', $para)->render();
+                $return_data['html'] = View('tables.edit_columns', $para)->render();
 
             }
         }
         return $return_data;
     }
 
+    //update table columns
     public function updateTableColumns(Request $request) {
-        // echo "<pre>";
-        // print_r($request->all());die;
 
-        Schema::table('category', function(Blueprint $table) {
-            $table->renameColumn('var', 'var1');
-        });
-
-        die;
         $return_data['error'] = 1;
         $return_data['msg'] = "Something went wrong please try again later.";
         $return_data['html'] = '';
         $table_name = $request->edit_table_name;
         $column_name_arr = $request->column_name;
+        $column_type_arr = $request->column_type;
         $original_column_name_arr = $request->original_column_name;
-        // $new_column_type = $this->custom_field[$new_column_type]['laravel_field'];
 
         if(!empty($table_name) && !empty($column_name_arr) && !empty($original_column_name_arr)){
-
-            // Schema::table('stnk', function(Blueprint $table) {
-            //     $table->renameColumn('id', 'id_stnk');
-            // });
 
             if(!empty($column_name_arr)){
                 foreach($column_name_arr as $k=>$new_column){
                     $old_column = $original_column_name_arr[$k];
+                    $new_column_type = $column_type_arr[$k];
+                    $new_column_type = $this->custom_field[$new_column_type]['laravel_field'];
 
+                    //change name
                     Schema::table($table_name, function(Blueprint $table) use($old_column, $new_column) {
                         $table->renameColumn($old_column, $new_column);
+                    });
+
+                    //change type
+                    Schema::table($table_name, function (Blueprint $table) use($new_column_type, $new_column) {
+                        $table->{$new_column_type}($new_column)->change();
                     });
                 }
 
@@ -178,16 +175,14 @@ class TableController extends Controller
                 $para['data'] = $fields;
                 $para['table_name'] = $table_name;
                 $para['custom_field'] = $this->custom_field;
-                $return_data['html'] = View('customer.edit_columns', $para)->render();
+                $return_data['html'] = View('tables.edit_columns', $para)->render();
             }
         }        
         return $return_data;
     }
 
+    //store table columns
     public function storeTableColumns(Request $request){
-
-        // echo "<pre>";
-        // print_r($request->all());die;
 
         $return_data['error'] = 1;
         $return_data['msg'] = "Something went wrong please try again later.";
@@ -197,8 +192,6 @@ class TableController extends Controller
         $new_column_name = $request->new_column_name;
         $table_name = $request->table_name; 
         $new_column_type = $this->custom_field[$new_column_type]['laravel_field'];
-
-        // echo $new_column_type;die;
 
         if(!empty($new_column_type) && !empty($new_column_name) && !empty($table_name)){
             
@@ -217,16 +210,14 @@ class TableController extends Controller
                 $para['data'] = $fields;
                 $para['table_name'] = $table_name;
                 $para['custom_field'] = $this->custom_field;
-                $return_data['html'] = View('customer.edit_columns', $para)->render();
+                $return_data['html'] = View('tables.edit_columns', $para)->render();
             }            
         }
         return $return_data;
     }
 
+    //delete table columns
     public function deleteTableColumns(Request $request){
-
-        // echo "<pre>";
-        // print_r($request->all());die;
 
         $return_data['error'] = 1;
         $return_data['msg'] = "Something went wrong please try again later.";
@@ -249,7 +240,7 @@ class TableController extends Controller
             $para['data'] = $fields;
             $para['table_name'] = $table_name;
             $para['custom_field'] = $this->custom_field;
-            $return_data['html'] = View('customer.edit_columns', $para)->render();
+            $return_data['html'] = View('tables.edit_columns', $para)->render();
         }
         return $return_data;
     }
